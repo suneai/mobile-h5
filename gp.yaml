@@ -1,0 +1,12 @@
+reverse-proxy:
+
+- name: 'REMOTE'
+  pattern: '/api/'
+  backend: 'http://fpc-dev-v3-5.2019-ft-ppc.gantcloud.com'
+
+- name: 'LOCAL'
+  pattern: '/'
+  backend: 'http://localhost:10086'  
+  
+# 监听端口
+port: 9000

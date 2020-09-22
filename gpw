@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+### user custom var
+
+VERSION=0.2.3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################### download gant-proxy cmd if not exists ############################
+set -e
+
+if [ "$(uname)" = "Darwin" ]; then
+    CMD_FILE_NAME=gant-proxy_darwin_amd64
+    OS=MacOS
+elif [ "$(expr substr $(uname -s) 1 5)" = "Linux" ]; then
+    CMD_FILE_NAME=gant-proxy_linux_amd64
+    OS=Linux
+elif [ "$(expr substr $(uname -s) 1 10)" = "MINGW32_NT" ] || \
+	 [ "$(expr substr $(uname -s) 1 10)" = "MINGW64_NT" ]; then
+    CMD_FILE_NAME=gant-proxy_windows_amd64.exe
+    OS=Windows
+else
+	echo "unknow system"
+	exit -1
+fi
+
+echo "OS:$OS"
+
+CMD_LEN_FILE_NAME=${CMD_FILE_NAME}.len
+
+CMD_DIR="$HOME/.gant-proxy/$VERSION"
+CMD_FILE="$CMD_DIR/$CMD_FILE_NAME"
+CMD_LEN_FILE=${CMD_FILE}.len
+
+DOWNLOAD_URL="http://maven.gantsoftware.com:8081/repository/gant-raw/gant-proxy/$VERSION/$CMD_FILE_NAME"
+
+# init
+mkdir -p $CMD_DIR
+
+## functions
+
+function getCmdFileLength(){
+	if [ -e $CMD_LEN_FILE ]; then
+		cmdFileLength=$(cat $CMD_LEN_FILE)
+	else
+		echo "fetch len from remote"
+		cmdFileLength=$(curl -sfI -X HEAD $DOWNLOAD_URL|grep Content-Length|awk '{print $2}')
+        if [ "$OS" = "MacOS" ]; then
+            # remove the latest char for MacOS
+            cmdFileLength=${cmdFileLength:0:${#cmdFileLength}-1}  
+        fi
+		echo -n $cmdFileLength> $CMD_LEN_FILE
+	fi
+}
+
+function getCmdFileLocalLength(){
+  cmdFileLocalLength=$(ls -l $CMD_FILE| awk '{print $5}')
+}
+
+## -------------
+# verify existed file length, delete if not match
+getCmdFileLength
+if [ -e $CMD_FILE ]; then
+	getCmdFileLocalLength
+	if [ ! $cmdFileLength = $cmdFileLocalLength ]; then
+		echo "file length not match, deleting..."
+		rm -f $CMD_FILE
+		rm -f $CMD_LEN_FILE
+	fi
+fi
+
+# download
+if [ ! -e $CMD_FILE ]; then
+	echo "downloading..."
+	curl -f -o $CMD_FILE $DOWNLOAD_URL
+fi
+
+getCmdFileLength
+getCmdFileLocalLength
+if [ ! $cmdFileLength = $cmdFileLocalLength ]; then
+	echo "download error"
+	exit -1
+fi
+## -----------------
+
+
+###############################  run gant-proxy cmd ##############################
+CMD=$CMD_FILE
+chmod +x $CMD
+
+echo "gant-proxy path: $CMD"
+
+$CMD -config gp.yaml
