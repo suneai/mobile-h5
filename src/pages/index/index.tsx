@@ -26,7 +26,6 @@ export default class Index extends Component<IndexProps,IndexState >  {
   render () {
     return (
       <View className='index'>
-        <AtButton type='primary'>taroui</AtButton>
         <Pagination
         
         />
