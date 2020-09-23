@@ -35,11 +35,14 @@ export interface PaginationProps {
 }
 
 export interface DargStyleConfig{
-  top : string,
-  height: string | number | Array<string | number>
+  top ?: string,
+  height?: string | number | Array<string | number>,
+  [propsName:string]:any
 }
 
 export interface DownDragStyleConfig{
-  display : string,
-  height: string | number | Array<string | number>
+  display ?: string,
+  height?: string | number | Array<string | number>,
+  [propsName:string]:any
+
 }

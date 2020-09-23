@@ -1,6 +1,7 @@
 
-import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { View, ScrollView } from '@tarojs/components'
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { View, Text, ScrollView } from '@tarojs/components'
+import { AtActivityIndicator, AtToast, AtLoadMore, AtIcon } from 'taro-ui'
 import { PaginationProps, DargStyleConfig, DownDragStyleConfig } from './index.interface'
 import { showPromp, IS_H5 } from '@utils/index'
 import _debounce from 'lodash/debounce'
@@ -12,8 +13,12 @@ const defaultDownDragStyle = {
   display: 'none'
 }
 
+// 滚动高度超过这个值将显示置顶按钮
+const SCROLL_TOP_HEIGHT: number = 600
+
 const Pagination = (props: PaginationProps) => {
   const {
+    children,
     onRefresh, // 下拉加载的回调
     onEndReached, // 上拉加载回调
     loading = false, // 加载状态
@@ -41,7 +46,7 @@ const Pagination = (props: PaginationProps) => {
     height: typeof height === 'string' ? height : height + 'px'
   })
   //下拉图标的样式
-  const [downDragStyle, setdownDragStyle] = useState<DownDragStyleConfig>(defaultDownDragStyle)
+  const [downDragStyle, setDownDragStyle] = useState<DownDragStyleConfig>(defaultDownDragStyle)
   const [pullDownTextState, setPullDownTextState] = useState<string>(pullDownText)
   const [start_p, setStart_p] = useState<any>({})
   const [scrollY, setScrollY] = useState<boolean>(true)
@@ -62,33 +67,30 @@ const Pagination = (props: PaginationProps) => {
   //还原初始设置
   const reduction = useCallback((pullDownTextProp) => {
     const time = 0.5
-    // this.setState({
-    //   dargState: 0,
-    //   dargStyle: {
-    //     top: 0 + 'px',
-    //     transition: `all ${time}s ease-in 0.5s`,
-    //     height: typeof height === 'string' ? height : height + 'px'
-    //   },
-    //   downDragStyle: {
-    //     height: 0 + 'px',
-    //     transition: `all ${time}s ease-in 0.5s`
-    //   },
-    //   scrollY: true,
-    //   localRefreshLoading: false,
-    //   pullDownTextState: pullDownTextProp || pullDownText
-    // })
+    setDargState(0)
+    setDargStyle({
+      top: 0 + 'px',
+      transition: `all ${time}s ease-in 0.5s`,
+      height: typeof height === 'string' ? height : height + 'px'
+    })
+    setDownDragStyle({
+      height: 0 + 'px',
+      transition: `all ${time}s ease-in 0.5s`
+    })
+    setScrollY(true)
+    setLocalRefreshLoading(false)
+    setPullDownTextState(pullDownTextProp || pullDownText)
     setTimeout(() => {
-      // this.setState({
-      //   dargStyle: {
-      //     top: 0 + 'px',
-      //   },
-      //   downDragStyle: {
-      //     height: 0 + 'px',
-      //     display: 'none'
-      //   },
-      //   pullDownTextState: pullDownText,
-      //   isPullDownAble: true
-      // })
+      setDargStyle({
+        top: 0 + 'px',
+      })
+      setDownDragStyle({
+        height: 0 + 'px',
+        display: 'none'
+
+      })
+      setPullDownTextState(pullDownText)
+      setIsPullDownAble(true)
     }, 1 * 1000)
   }, [pullDownText, height])
 
@@ -108,7 +110,7 @@ const Pagination = (props: PaginationProps) => {
     setStart_p({
       ...e.touches[0]
     })
-  },[])
+  }, [])
 
   const touchMove = useCallback((e) => {
     let _isDisabledElement = isDisabledElement(e.target)
@@ -150,7 +152,7 @@ const Pagination = (props: PaginationProps) => {
           height: `${pY}px`,
           display: 'none'
         }
-        setdownDragStyle(_downDragStyle)
+        setDownDragStyle(_downDragStyle)
         //拖动的时候禁用
         setScrollY(false)
 
@@ -190,7 +192,7 @@ const Pagination = (props: PaginationProps) => {
       showPromp({
         isShowPromp: showRefreshPromp,
         tip: refreshPrompText,
-        callback: onRefresh,
+        callback: onRefreshFun,
         cancelCallback: reduction('取消刷新')
       })
     } else {
@@ -231,8 +233,38 @@ const Pagination = (props: PaginationProps) => {
     setScrollToTopAble(false)
   }, [])
 
+  // 是否显示toastLoading
+  const isShowToastLoading = useMemo(() => !showCoverLoading && showToastLoading,[showCoverLoading,showToastLoading])
+    // 是否显示封面提示信息
+  const isShowCoverInfo = useMemo(() => !showCoverLoading && showCoverInfo,[showCoverLoading,showCoverInfo])
+    // 是否显示已加载所有数据
+  const isShowNoMoreData = useMemo(() => !endReachedLoading && showNoMoreData,[endReachedLoading,showNoMoreData])
+    // 是否显示this.props.children
+  const isShowChildren = useMemo(() => !showCoverLoading && !showCoverInfo,[showCoverLoading,showCoverInfo])
+    // 是否显示上拉加载相关
+  const showEndReached = useMemo(() => endReachedLoading || isShowNoMoreData || endReachedError,[endReachedLoading,isShowNoMoreData,endReachedError])
+
+  const loadMoreStatus = useMemo(() => {
+    let _loadMoreStatus = 'loading'
+    if (endReachedLoading) {
+      _loadMoreStatus = 'loading'
+    } else if (endReachedError) {
+      _loadMoreStatus = 'more'
+    } else if (isShowNoMoreData) {
+      _loadMoreStatus = 'noMore'
+    }
+    return _loadMoreStatus
+
+  },[endReachedLoading,endReachedError,isShowNoMoreData])
+
+  const showScrollToTopBtn = useMemo(() => scrollToTopAble && showScrollToTop,[scrollToTopAble,showScrollToTop])
+
   return (
     <View className='fx-pagination-wrap drag-updata-page'>
+      <View className='down-drag-box' style={downDragStyle}>
+        {localRefreshLoading && <AtActivityIndicator />}
+        {!localRefreshLoading && <Text className='down-text'>{pullDownTextState}</Text>}
+      </View>
       <ScrollView
         className='drag-updata'
         ref={scollViewRef}
@@ -242,11 +274,25 @@ const Pagination = (props: PaginationProps) => {
         onScrollToUpper={scrollToUpper}
         onScrollToLower={scrollToLower}
         scrollY={scrollY}
-          scrollWithAnimation
-          onScroll={onScroll}
-          enableBackToTop
-          scrollTop={scrollTop}
+        scrollWithAnimation
+        onScroll={onScroll}
+        enableBackToTop
+        scrollTop={scrollTop}
       >
+        {isShowToastLoading && <AtToast isOpened={showToastLoading} text='正在加载' status='loading' hasMask />}
+        {showCoverLoading && <AtActivityIndicator mode='center' size={100} />}
+        {/* {isShowCoverInfo && <InfoView text={coverInfoText} />} */}
+        {isShowChildren && children}
+        {showEndReached && <AtLoadMore
+          moreBtnStyle='background:rgba(0,0,0,0.1);height:80px;line-height: 80px;'
+          moreText='加载失败，点击重试'
+          noMoreText='已加载所有数据'
+          status={loadMoreStatus}
+          onClick={forceEndReachedFun}
+        />}
+        {showScrollToTopBtn && <View className='scroll-top-container' onClick={scrollToTop}>
+          <AtIcon value='chevron-up' size='20' color='#fff' style='line-height:100px;'></AtIcon>
+        </View>}
       </ScrollView>
     </View>
   )
