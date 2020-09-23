@@ -1,19 +1,43 @@
+import Taro from '@tarojs/taro';
 import { create } from 'dva-core';
 import createLoading from 'dva-loading';
-import models from '../models/index'
 
+let app;
+let store;
+let dispatch;
 
-/**
- * 启动dva，并返回model
- */
-export default (() => {
-  // 创建
-  let app = create()
-  // 使用插件
-  app.use(createLoading())
-  // 注册model
-  models.forEach(model => app.model(model))
-  // 启动
-  app.start()
-  return app._store
-})()
+function createApp(opt) {
+  // redux日志
+  // opt.onAction = [createLogger()];
+  opt.onError = (err) => {
+    console.error(err);
+    Taro.hideLoading();
+    Taro.showToast({ title: '服务器错误' });
+  };
+  app = create(opt);
+  app.use(createLoading({}));
+
+  // 适配支付宝小程序
+  if (Taro.getEnv() === Taro.ENV_TYPE.ALIPAY) {
+    global = {};
+  }
+
+  if (!global.registered) opt.models.forEach((model) => app.model(model));
+  global.registered = true;
+  app.start();
+
+  store = app._store;
+  app.getStore = () => store;
+
+  dispatch = store.dispatch;
+
+  app.dispatch = dispatch;
+  return app;
+}
+
+export default {
+  createApp,
+  getDispatch() {
+    return app.dispatch;
+  }
+};

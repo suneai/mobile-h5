@@ -1,15 +1,10 @@
 
-import React, { Component } from 'react'
-import { View, Text } from '@tarojs/components'
+import React, { Component ,ComponentClass } from 'react'
+import { View } from '@tarojs/components'
 import { IndexProps, IndexState } from './index.interface'
-import { AtButton } from 'taro-ui'
-
-import { Pagination } from '@components'
-// import fetch from '@utils/request'
-
 import './index.scss'
 
-export default class Index extends Component<IndexProps,IndexState >  {
+class Index extends Component<IndexProps,IndexState >  {
 
   componentWillMount () {
     // console.log(fetch)
@@ -26,10 +21,10 @@ export default class Index extends Component<IndexProps,IndexState >  {
   render () {
     return (
       <View className='index'>
-        <Pagination
-        
-        />
+        222
       </View>
     )
   }
 }
+
+export default Index as ComponentClass

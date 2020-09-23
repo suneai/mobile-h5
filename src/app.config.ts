@@ -1,5 +1,6 @@
 export default {
   pages: [
+    'pages/test/index',
     'pages/index/index'
   ],
   window: {

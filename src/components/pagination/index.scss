@@ -4,6 +4,7 @@
  $btn-width:90px;
 
 .drag-updata-page {
+  height: 100vh;
   position: relative;
   overflow: hidden;
 
@@ -28,7 +29,7 @@
     background: #F7F7F7;
   }
 
-  .endReachedContainer {
+  .end-reached-container {
     width: 100%;
     display: flex;
     overflow: hidden;

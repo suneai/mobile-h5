@@ -1,0 +1,23 @@
+
+.test {
+    width: 100%;
+    min-height: 100vh;
+    .test-item{
+        display: block;
+        width: 80%;
+        height: 100px;
+        line-height: 100px;
+        color: aqua;
+        text-align: center !important;
+        font-size: 24px;
+        border:1px solid bisque;
+        margin: 20px auto;
+        border-radius: 20px;
+        box-sizing: border-box;
+    }
+
+}
+
+.drag-updata{
+ height: 100vh;
+}
