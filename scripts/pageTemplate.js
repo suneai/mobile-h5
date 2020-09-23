@@ -18,10 +18,22 @@ const indexTep = `
 import React, { Component } from 'react'
 import { View, Text } from '@tarojs/components'
 import { ${capPirName}Props, ${capPirName}State } from './${dirName}.interface'
+import { connect } from 'react-redux';
+import PAGE_NAME from "./model"
+
 // import { } from '@components'
 
 import './index.scss'
 
+@connect(({ ${dirName} }) => ({
+  ...${dirName},
+}),
+(dispatch: any) => {
+  return ['save'].reduce((res: any, item: any) => {
+    res[item] = (payload: any, callback: Function) => dispatch({ type: \`\${PAGE_NAME}/\${item}\`, payload, callback })
+    return res
+  }, { dispatch })
+})
 export default class ${capPirName} extends Component<${capPirName}Props,${capPirName}State >  {
 
   componentWillMount () { }
@@ -78,9 +90,10 @@ export const testApi = data => Api.test(
 const modelTep = `
 // import Taro from '@tarojs/taro';
 import * as ${dirName}Api from './service';
+export const PAGE_NAME = ${dirName}
 
 export default {
-  namespace: '${dirName}',
+  namespace: PAGE_NAME,
   state: {
   },
 

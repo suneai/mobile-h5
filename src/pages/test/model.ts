@@ -2,8 +2,9 @@
 // import Taro from '@tarojs/taro';
 import * as testApi from './service';
 
+export const PAGE_NAME = 'test'
 export default {
-  namespace: 'test',
+  namespace: PAGE_NAME,
   state: {
   },
 
