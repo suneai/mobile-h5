@@ -1,6 +1,7 @@
 
 import React, { useEffect, useMemo, useCallback } from 'react'
 import { View } from '@tarojs/components'
+import Taro from '@tarojs/taro'
 import { PageTopNavBarProps } from './index.interface'
 import { IS_H5, IS_WEAPP, routerToHome, HEIGHTS, showPromp } from '@utils/index'
 import { AtNavBar, AtActivityIndicator, AtMessage } from 'taro-ui'
