@@ -28,12 +28,13 @@ const config = {
   sourceRoot: 'src',
   outputRoot: 'dist',
   plugins: [
-    
+
   ],
   defineConstants: {
   },
   alias: {
     '@assets': path.resolve(__dirname, '..', 'src/assets'),
+    '@theme': path.resolve(__dirname, '..', 'src/theme'),
     '@components': path.resolve(__dirname, '..', 'src/components'),
     '@config': path.resolve(__dirname, '..', 'src/config'),
     '@mock': path.resolve(__dirname, '..', 'src/mock'),

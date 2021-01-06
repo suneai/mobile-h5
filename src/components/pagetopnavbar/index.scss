@@ -1,0 +1,9 @@
+@import '@theme/theme.scss';
+
+.page-top-nav-bar-wrap {
+    height    : 100%;
+    width     : 100vw;
+    position  : relative;
+    overflow  : hidden;
+    background: $page-background-color;
+}

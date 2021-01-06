@@ -7,7 +7,17 @@ export const IS_H5 = Taro.getEnv() === Taro.ENV_TYPE.WEB
 // 是否是微信小程序环境
 export const IS_WEAPP = Taro.getEnv() === Taro.ENV_TYPE.WEAPP
 
-
+/**
+ * 跳转至首页
+ */
+export function routerToHome() {
+  let url = '/pages/index/index'
+  if (IS_H5) {
+    Taro.navigateTo({ url })
+  } else {
+    Taro.switchTab({ url })
+  }
+}
 
 
 // 固定高度的组件列表及对应高度

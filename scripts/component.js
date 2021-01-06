@@ -20,7 +20,7 @@ import { View } from '@tarojs/components'
 import { ${capPirName}Props } from './index.interface'
 import './index.scss'
 
-class ${capPirName}:React.FC<${capPirName}Props> = props => {
+const ${capPirName} = (props : ${capPirName}Props) => {
   const {
     ...nextProps
   } = props

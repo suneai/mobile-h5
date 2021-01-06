@@ -4,7 +4,7 @@ import { View, Text } from '@tarojs/components'
 import { TestProps, TestState } from './test.interface'
 // import { } from '@components'
 import { connect } from 'react-redux';
-import { Pagination } from '@components'
+import { Pagination, PageTopNavBar } from '@components'
 import { getScrollHeight } from '@utils/index'
 import PAGE_NAME from "./model"
 const SCROLL_HEIGHT = getScrollHeight([])
@@ -12,12 +12,12 @@ import './index.scss'
 @connect(({ test }) => ({
   ...test,
 }),
-(dispatch: any) => {
-  return ['save', 'queryList', 'batchSave'].reduce((res: any, item: any) => {
-    res[item] = (payload: any, callback: Function) => dispatch({ type: `${PAGE_NAME}/${item}`, payload, callback })
-    return res
-  }, { dispatch })
-})
+  (dispatch: any) => {
+    return ['save', 'queryList', 'batchSave'].reduce((res: any, item: any) => {
+      res[item] = (payload: any, callback: Function) => dispatch({ type: `${PAGE_NAME}/${item}`, payload, callback })
+      return res
+    }, { dispatch })
+  })
 export default class Test extends Component<TestProps, TestState>  {
 
   state = {
@@ -55,7 +55,9 @@ export default class Test extends Component<TestProps, TestState>  {
 
     let endReachedError = data.length >= 20 && data.length < 30 ? true : false
     return (
-      <View className='test'>
+      <PageTopNavBar
+        navTitle='测试列表'
+      >
         <Pagination
           height={SCROLL_HEIGHT}
           showCoverLoading={data.length === 0}
@@ -73,7 +75,7 @@ export default class Test extends Component<TestProps, TestState>  {
               </View>)
           }
         </Pagination>
-      </View>
+      </PageTopNavBar>
     )
   }
 }
